@@ -38,7 +38,7 @@ else:
     olmayanlar.append("Şifrede hiç sayı yok ❌")
 
 if any(c in string.punctuation for c in password):
-    puan += 25
+    point += 25
     olanlar.append("Şifrede özel karakter var ✅")
 else: 
     olmayanlar.append("Şifrede özel karakter yok ❌")
@@ -51,4 +51,4 @@ for i in olmayanlar:
     print(i)
     time.sleep(1)
 
-print("Puanınız (100 üzerinden):", point)
+print(f"Şifreniz %{point} güvenli.")

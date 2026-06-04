@@ -48,9 +48,9 @@ Tek satır kod yazmadan önce şu soruları yanıtladım:
 
 ## Phase 2 / Faz 2: Environment Setup / Ortam Kurulumu
 
-- [ ] Isolated lab environment (Docker / VM) / İzole lab ortamı
-- [ ] Tools installed and verified / Araçlar kuruldu ve test edildi
-- [ ] `.env.example` created / oluşturuldu
+- [x] Isolated lab environment (Docker / VM) / İzole lab ortamı
+- [x] Tools installed and verified / Araçlar kuruldu ve test edildi
+- [x] `.env.example` created / oluşturuldu
 
 ---
 
@@ -68,22 +68,25 @@ Tek satır kod yazmadan önce şu soruları yanıtladım:
 
 ## Phase 4 / Faz 4: Testing & Reporting / Test ve Raporlama
 
-- [ ] Ran tests against target/sample / Hedef/örnek üzerinde testler çalıştırıldı
-- [ ] Documented all findings with evidence / Tüm bulgular kanıtlarıyla belgelendi
-- [ ] Wrote final report (Markdown) / Final raporu yazıldı
+- [x] Ran tests against target/sample / Hedef/örnek üzerinde testler çalıştırıldı
+- [x] Documented all findings with evidence / Tüm bulgular kanıtlarıyla belgelendi
+- [x] Wrote final report (Markdown) / Final raporu yazıldı
 
 ---
 
 ## Phase 5 / Faz 5: Delivery / Teslim
 
-- [ ] GitHub repository is clean and organized / Repo temiz ve düzenli
-- [ ] README.md complete / eksiksiz
-- [ ] Docker verified (`docker-compose up`) / doğrulandı
+- [x] GitHub repository is clean and organized / Repo temiz ve düzenli
+- [x] README.md complete / eksiksiz
+- [x] Docker verified (`docker-compose up`) / doğrulandı
 - [ ] Instructor invited as collaborator / Danışman collaborator olarak eklendi → **keyvanarasteh**
 
 ---
 
 ## What I Learned / Öğrendiklerim
 
-[Honest reflection: What was hard? What surprised you? / Dürüst değerlendirme: Ne zordu? Ne sizi şaşırttı?]
+Bu proje bana siber güvenlik ve güvenli yazılım geliştirme alanında çok değerli kazanımlar sağladı:
+- **Geleneksel vs. Modern Parola Gücü:** Yalnızca büyük/küçük harf veya rakam gibi kuralların güvenli şifreler üretmekte yetersiz kaldığını; asıl önemli olanın entropi ve `zxcvbn` gibi sözlük/örüntü tabanlı analizlerin olduğunu öğrendim.
+- **k-Anonymity ile Gizliliğin Korunması:** Kullanıcının hassas bir verisini (parolasını) internete göndermeden, SHA-1 özeti ve Range API kullanarak Have I Been Pwned veritabanında nasıl güvenli bir şekilde sorgulayabileceğimi pratik ettim.
+- **Kullanıcı Deneyimi ve Taşınabilirlik:** Komut satırı arayüzlerinde `rich` kütüphanesiyle görsel tasarımı güçlendirmenin önemini ve Docker konteynerizasyonunun sistem bağımsızlığı sağlama gücünü deneyimledim.
 

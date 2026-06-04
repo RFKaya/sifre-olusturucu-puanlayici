@@ -141,8 +141,40 @@ def display_analysis(password: str, analyzer: PasswordAnalyzer, breach_checker: 
     console.print(breach_panel)
 
     # 6. Suggestions
-    suggestions = strength["suggestions"]
-    warning = strength["warning"]
+    def translate_zxcvbn(text: str) -> str:
+        norm_text = text.strip().rstrip(".").lower()
+        translations = {
+            "straight rows of keys on a keyboard are easy to guess": "Klavye üzerindeki düz tuş sıralarının tahmin edilmesi kolaydır.",
+            "short keyboard patterns are easy to guess": "Kısa klavye desenlerinin tahmin edilmesi kolaydır.",
+            "repeats like \"aaa\" are easy to guess": "Tekrarlayan karakterlerin ('aaa' gibi) tahmin edilmesi kolaydır.",
+            "repeats like \"abcabcabc\" are only slightly harder to guess than \"abc\"": "Ardışık tekrarların ('abcabcabc' gibi) tahmin edilmesi kolaydır.",
+            "sequences like \"abc\" or \"6543\" are easy to guess": "Sıralı dizilerin ('abc' veya '6543' gibi) tahmin edilmesi kolaydır.",
+            "recent years are easy to guess": "Yakın yılların tahmin edilmesi kolaydır.",
+            "dates are easy to guess": "Tarihlerin tahmin edilmesi kolaydır.",
+            "this is a top-10 common password": "Bu en sık kullanılan ilk 10 şifreden biridir.",
+            "this is a top-100 common password": "Bu en sık kullanılan ilk 100 şifreden biridir.",
+            "this is a very common password": "Bu çok yaygın kullanılan bir şifredir.",
+            "this is similar to a commonly used password": "Bu, yaygın kullanılan şifrelere çok benzer.",
+            "a word by itself is easy to guess": "Tek başına bir kelimenin tahmin edilmesi kolaydır.",
+            "names and surnames by themselves are easy to guess": "Tek başına isim ve soyisimlerin tahmin edilmesi kolaydır.",
+            "common names and surnames are easy to guess": "Yaygın isim ve soyisimlerin tahmin edilmesi kolaydır.",
+            "add another word or two. uncommon words are better": "Bir veya iki kelime daha ekleyin. Yaygın olmayan kelimeler daha iyidir.",
+            "add another word or two": "Bir veya iki kelime daha ekleyin.",
+            "uncommon words are better": "Yaygın olmayan kelimeler daha iyidir.",
+            "use a longer keyboard pattern with more turns": "Daha fazla dönüş içeren daha uzun bir klavye deseni kullanın.",
+            "avoid repeated words and characters": "Tekrarlayan kelimelerden ve karakterlerden kaçının.",
+            "avoid sequences": "Sıralı dizilerden kaçının.",
+            "avoid recent years": "Yakın yılları kullanmaktan kaçının.",
+            "avoid dates and years that are associated with you": "Sizinle ilişkili olabilecek tarih ve yılları kullanmaktan kaçının.",
+            "capitalization doesn't help very much": "Yalnızca baş harfi büyütmek güvenliği çok fazla artırmaz.",
+            "all-uppercase is almost as easy to guess as all-lowercase": "Tamamı büyük harf olan kelimelerin tahmin edilmesi, tamamı küçük harf olanlar kadar kolaydır.",
+            "predictable substitutions like '@' instead of 'a' don't help very much": "Harf yerine benzer karakter kullanmak ('a' yerine '@' gibi) güvenliği çok fazla artırmaz."
+        }
+        return translations.get(norm_text, text)
+
+    suggestions = [translate_zxcvbn(s) for s in strength["suggestions"]]
+    warning = translate_zxcvbn(strength["warning"]) if strength["warning"] else ""
+
     if warning or suggestions or not policy["is_compliant"] or breach_status == "breached":
         console.print("\n[bold yellow]💡 İyileştirme Önerileri / Security Suggestions:[/bold yellow]")
         if warning:

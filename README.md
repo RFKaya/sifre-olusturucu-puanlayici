@@ -88,15 +88,31 @@ final-projeniz/
    git clone https://github.com/keyvanarasteh/sifre-olusturucu-puanlayici.git
    cd sifre-olusturucu-puanlayici
    ```
-2. Bağımlılıkları yükleyin:
+2. Sanal ortamı (virtual environment) oluşturun ve aktif edin:
+   - **Windows (PowerShell):**
+     ```powershell
+     python -m venv venv
+     .\venv\Scripts\Activate.ps1
+     ```
+   - **Windows (CMD):**
+     ```cmd
+     python -m venv venv
+     .\venv\Scripts\activate.bat
+     ```
+   - **Linux / macOS:**
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+3. Bağımlılıkları yükleyin:
    ```bash
    pip install -r requirements.txt
    ```
-3. Yapılandırma dosyasını kopyalayın ve düzenleyin:
+4. Yapılandırma dosyasını kopyalayın ve düzenleyin:
    ```bash
    cp .env.example .env
    ```
-4. Uygulamayı çalıştırın:
+5. Uygulamayı çalıştırın:
    ```bash
    python src/main.py
    ```
@@ -115,10 +131,10 @@ final-projeniz/
 | Başlık | Açıklama | Durum |
 |--------|----------|:---:|
 | **Zorunlu Repo Yapısı** | README, ROADMAP, Dockerfile, env vb. dosyaların tamamlanması | 🟢 |
-| **Politika Analizörü** | NIST ve özel parola kurallarının doğrulanması | ⬜ |
-| **Güç Puanlama** | zxcvbn entegrasyonu ve entropi ölçümü | ⬜ |
-| **İhlal Kontrolü** | k-Anonymity HIBP API entegrasyonu | ⬜ |
-| **Kapsamlı Testler** | Otomatik birim testlerinin hazırlanması (`pytest`) | ⬜ |
+| **Politika Analizörü** | NIST ve özel parola kurallarının doğrulanması | 🟢 |
+| **Güç Puanlama** | zxcvbn entegrasyonu ve entropi ölçümü | 🟢 |
+| **İhlal Kontrolü** | k-Anonymity HIBP API entegrasyonu | 🟢 |
+| **Kapsamlı Testler** | Otomatik birim testlerinin hazırlanması (`pytest`) | 🟢 |
 
 ---
 

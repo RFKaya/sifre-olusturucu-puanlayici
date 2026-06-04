@@ -29,8 +29,8 @@
 
 | | |
 |---|---|
-| **Ad Soyad** | [Adınız Soyadınız / Your Full Name] |
-| **Öğrenci No** | `2020****4567` *(Lütfen ilk 4 ve son 4 rakam kalacak şekilde güncelleyin)* |
+| **Ad Soyad** | Rauf Fatih Kaya |
+| **Öğrenci No** | `2520**1004` |
 
 ---
 

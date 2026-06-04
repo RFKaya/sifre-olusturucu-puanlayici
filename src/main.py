@@ -1,5 +1,10 @@
-import argparse
+import os
 import sys
+import argparse
+
+# Proje kök dizinini sys.path listesine ekleyerek her iki çalıştırma yöntemini de destekliyoruz
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from src.analyzer import PasswordAnalyzer
 from src.breach_checker import BreachChecker
 from src.generator import PasswordGenerator

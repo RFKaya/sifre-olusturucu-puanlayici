@@ -1,5 +1,5 @@
 requests>=2.31.0
-zxcvbn-python>=4.4.24
+zxcvbn>=4.4.28
 rich>=13.7.0
 python-dotenv>=1.0.1
 pytest>=8.0.0

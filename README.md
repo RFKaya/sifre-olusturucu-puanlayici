@@ -59,7 +59,7 @@ Bu proje, İstinye Üniversitesi Siber Güvenlik Bölümü Bahar 2025-2026 döne
 
 Projeyi bilgisayarınıza indirmeden, Have I Been Pwned API entegrasyonu ve zxcvbn mukavemet analizini tarayıcınızda deneyimleyebilirsiniz:
 
-🚀 **[Canlı Demoyu Aç / Open Live Demo](https://keyvanarasteh.github.io/sifre-olusturucu-puanlayici/)**
+🚀 **[Canlı Demoyu Aç / Open Live Demo](https://rfkaya.github.io/sifre-olusturucu-puanlayici/)**
 
 ---
 

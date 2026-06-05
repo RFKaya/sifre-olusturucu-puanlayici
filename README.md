@@ -1,6 +1,6 @@
 <div align="center">
   <a href="https://istinye.edu.tr">
-    <img src="docs/assets/istinye-university-logo.webp" alt="İstinye Üniversitesi" width="180"/>
+    <img src="https://www.istinye.edu.tr/sites/default/files/2025-07/isu_logo_tr-1.svg" alt="İstinye Üniversitesi" width="180"/>
   </a>
 
   # Parola Güvenlik Analizörü (Password Security Analyzer)
@@ -55,6 +55,26 @@ Bu proje, İstinye Üniversitesi Siber Güvenlik Bölümü Bahar 2025-2026 döne
 
 ---
 
+## 🎬 Canlı Web Demosu / Interactive Live Demo
+
+Projeyi bilgisayarınıza indirmeden, Have I Been Pwned API entegrasyonu ve zxcvbn mukavemet analizini tarayıcınızda deneyimleyebilirsiniz:
+
+🚀 **[Canlı Demoyu Aç / Open Live Demo](https://keyvanarasteh.github.io/sifre-olusturucu-puanlayici/)**
+
+---
+
+## 📸 Ekran Görüntüleri / Screenshots
+
+Aşağıda CLI uygulamasının farklı parola senaryoları için ürettiği analiz çıktılarının terminal kayıtları yer almaktadır:
+
+### 1. Zayıf ve Veri Sızıntısına Uğramış Parola Çıktısı (sifre123)
+![Zayıf Parola Analizi](docs/assets/analysis_weak.svg)
+
+### 2. Güçlü Parola Çıktısı
+![Güçlü Parola Analizi](docs/assets/analysis_strong.svg)
+
+---
+
 ## 🗂 Repo Yapısı / Repository Structure
 
 ```text
@@ -66,6 +86,11 @@ final-projeniz/
 ├── docker-compose.yml         # Çoklu konteyner yapılandırması (zorunlu)
 ├── requirements.txt           # Python kütüphaneleri bağımlılıkları
 ├── docs/
+│   ├── index.html             # Canlı web demosu arayüzü (GitHub Pages)
+│   ├── assets/                # Proje görselleri ve terminal ekran kayıtları
+│   │   ├── generate_terminal_svgs.py
+│   │   ├── analysis_weak.svg
+│   │   └── analysis_strong.svg
 │   ├── modules/               # Modül bazında belgeler
 │   ├── research/              # Derinlemesine araştırma notları (docs/research/research_notes.md)
 │   └── references/            # Kaynaklar, makaleler, araç linkleri

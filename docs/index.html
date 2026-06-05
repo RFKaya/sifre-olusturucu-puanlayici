@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parola Güvenlik Analizörü & Üreticisi | Canlı Demo</title>
+    
+    <!-- Google Fonts: Inter ve Fira Code (Terminal için) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- zxcvbn: Gerçekçi şifre kırma süresi ve mukavemet hesabı için -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-cyan: #00f0ff;
+            --accent-magenta: #f43f5e;
+            --accent-green: #10b981;
+            --accent-yellow: #f59e0b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --terminal-bg: #0b0f19;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.05) 0%, transparent 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, transparent 100%);
+            backdrop-filter: blur(8px);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 10;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-section img {
+            height: 48px;
+            filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.2));
+        }
+
+        .title-group h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: linear-gradient(to right, #00f0ff, #38bdf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .title-group p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .badge-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .badge.cyan { border-color: rgba(0, 240, 255, 0.3); color: var(--accent-cyan); }
+        .badge.magenta { border-color: rgba(244, 63, 94, 0.3); color: var(--accent-magenta); }
+        .badge.green { border-color: rgba(16, 185, 129, 0.3); color: var(--accent-green); }
+
+        main {
+            flex: 1;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            box-shadow: 0 10px 30px -15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            color: #fff;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.2);
+        }
+
+        .input-wrapper .toggle-visibility {
+            position: absolute;
+            right: 0.75rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: color 0.2s;
+        }
+
+        .input-wrapper .toggle-visibility:hover {
+            color: var(--text-main);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: rgba(15, 23, 42, 0.4);
+            padding: 0.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+        }
+
+        .tab-btn.active {
+            background: var(--bg-color);
+            color: var(--accent-cyan);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .slider-group input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-cyan);
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+        }
+
+        .slider-val {
+            font-family: 'Fira Code', monospace;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            min-width: 2.5rem;
+            text-align: center;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 0.85rem;
+            user-select: none;
+        }
+
+        .checkbox-label input {
+            accent-color: var(--accent-cyan);
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00f0ff 0%, #0284c7 100%);
+            color: #0f172a;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(0, 240, 255, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .blacklist-textarea {
+            width: 100%;
+            height: 60px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-main);
+            padding: 0.5rem;
+            font-family: inherit;
+            font-size: 0.85rem;
+            resize: none;
+        }
+
+        .blacklist-textarea:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        /* Terminal Bölümü */
+        .terminal-container {
+            background: var(--terminal-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px -20px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            font-family: 'Fira Code', monospace;
+            height: 100%;
+            min-height: 550px;
+            max-height: 800px;
+        }
+
+        .terminal-header {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .terminal-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-btn.red { background-color: #ef4444; }
+        .terminal-btn.yellow { background-color: #f59e0b; }
+        .terminal-btn.green { background-color: #10b981; }
+
+        .terminal-title {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.05em;
+        }
+
+        .terminal-actions {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .terminal-actions:hover {
+            color: #fff;
+        }
+
+        .terminal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            color: #d1d5db;
+        }
+
+        .prompt {
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .prompt::before {
+            content: "C:\\> ";
+            color: var(--text-muted);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: #fff;
+            vertical-align: middle;
+            margin-left: 4px;
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            from, to { background-color: transparent }
+            50% { background-color: currentColor }
+        }
+
+        /* CLI Panel ve Tablo Tasarımları */
+        .cli-panel {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin: 1rem 0;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .cli-panel.cyan { border-color: var(--accent-cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.1); }
+        .cli-panel.green { border-color: var(--accent-green); box-shadow: 0 0 10px rgba(16, 185, 129, 0.1); }
+        .cli-panel.yellow { border-color: var(--accent-yellow); box-shadow: 0 0 10px rgba(245, 158, 11, 0.1); }
+        .cli-panel.red { border-color: var(--accent-magenta); box-shadow: 0 0 10px rgba(244, 63, 94, 0.1); }
+
+        .cli-header-box {
+            border: 1px solid var(--accent-cyan);
+            padding: 0.75rem;
+            text-align: center;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .cli-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.8rem;
+        }
+
+        .cli-table th, .cli-table td {
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+
+        .cli-table th {
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .text-green { color: var(--accent-green); font-weight: bold; }
+        .text-red { color: var(--accent-magenta); font-weight: bold; }
+        .text-yellow { color: var(--accent-yellow); }
+        .text-cyan { color: var(--accent-cyan); }
+        .text-white { color: #fff; }
+
+        .progress-bar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.25rem;
+        }
+
+        .progress-block {
+            display: inline-block;
+            letter-spacing: -2px;
+            font-size: 1.1rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border-color);
+            margin-top: 2rem;
+            background: rgba(15, 23, 42, 0.4);
+        }
+
+        footer a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo-section">
+                <!-- Fallback to basic text style if logo is not found, or use relative link -->
+                <img src="https://www.istinye.edu.tr/sites/default/files/2025-07/isu_logo_tr-1.svg" alt="İstinye Üniversitesi Logo" onerror="this.style.display='none'">
+                <div class="title-group">
+                    <h1>İSTİNYE ÜNİVERSİTESİ</h1>
+                    <p>Siber Güvenlik Bölümü • Sızma Testi (BGT006) Final Projesi</p>
+                </div>
+            </div>
+            <div class="badge-group">
+                <span class="badge cyan"><i class="fa-brands fa-python"></i> Python 3.x</span>
+                <span class="badge magenta"><i class="fa-solid fa-shield-halved"></i> Güvenlik Analizi</span>
+                <span class="badge green"><i class="fa-solid fa-server"></i> Canlı Demo</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Sol Kontrol Paneli -->
+        <div class="card">
+            <div class="card-title">
+                <i class="fa-solid fa-sliders text-cyan"></i> Kontrol Paneli / Control Panel
+            </div>
+
+            <!-- Menü Sekmeleri -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-analyze')">
+                    <i class="fa-solid fa-magnifying-glass"></i> Analiz Et
+                </button>
+                <button class="tab-btn" onclick="switchTab('tab-generate')">
+                    <i class="fa-solid fa-key"></i> Şifre Üret
+                </button>
+                <button class="tab-btn" onclick="switchTab('tab-passphrase')">
+                    <i class="fa-solid fa-ellipsis-h"></i> Parola Grubu
+                </button>
+            </div>
+
+            <!-- SEKME 1: PAROLA ANALİZİ -->
+            <div id="tab-analyze" class="tab-content active">
+                <div class="form-group">
+                    <label for="input-pwd">Analiz Edilecek Parola / Password to Analyze</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="input-pwd" placeholder="Parolanızı yazın..." oninput="triggerAnalysis()">
+                        <button class="toggle-visibility" onclick="togglePasswordVisibility('input-pwd')">
+                            <i class="fa-solid fa-eye" id="input-pwd-eye"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEKME 2: PAROLA ÜRET -->
+            <div id="tab-generate" class="tab-content">
+                <div class="form-group">
+                    <label>Parola Uzunluğu / Length: <span id="val-length" class="slider-val">16</span></label>
+                    <div class="slider-group">
+                        <input type="range" id="gen-length" min="6" max="64" value="16" oninput="document.getElementById('val-length').innerText=this.value; triggerGeneration()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Karakter Kümeleri / Character Sets</label>
+                    <div class="checkbox-grid">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="gen-upper" checked onchange="triggerGeneration()">
+                            Büyük Harf (A-Z)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="gen-lower" checked onchange="triggerGeneration()">
+                            Küçük Harf (a-z)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="gen-digits" checked onchange="triggerGeneration()">
+                            Rakam (0-9)
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="gen-special" checked onchange="triggerGeneration()">
+                            Özel Karakter
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="gen-exclude" checked onchange="triggerGeneration()">
+                        Benzer Karakterleri Çıkar (l, 1, I, o, 0, O vb.)
+                    </label>
+                </div>
+
+                <button class="btn-primary" onclick="triggerGeneration()">
+                    <i class="fa-solid fa-rotate"></i> Şifre Üret ve Analiz Et
+                </button>
+            </div>
+
+            <!-- SEKME 3: PAROLA GRUBU (PASSPHRASE) -->
+            <div id="tab-passphrase" class="tab-content">
+                <div class="form-group">
+                    <label>Kelime Sayısı / Word Count: <span id="val-words" class="slider-val">4</span></label>
+                    <div class="slider-group">
+                        <input type="range" id="pass-words" min="3" max="10" value="4" oninput="document.getElementById('val-words').innerText=this.value; triggerPassphrase()">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pass-sep">Ayırıcı Karakter / Separator</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="pass-sep" value="-" maxlength="3" style="width: 80px; text-align: center;" oninput="triggerPassphrase()">
+                    </div>
+                </div>
+
+                <button class="btn-primary" onclick="triggerPassphrase()">
+                    <i class="fa-solid fa-shuffle"></i> Üret ve Analiz Et
+                </button>
+            </div>
+
+            <!-- GENEL POLİTİKA AYARLARI -->
+            <div class="card-title" style="margin-top: 1rem; font-size: 0.95rem;">
+                <i class="fa-solid fa-shield-halved text-cyan"></i> Politika Ayarları / Policy Rules
+            </div>
+
+            <div class="form-group">
+                <label>Minimum Uzunluk / Min Length: <span id="val-min-len" class="slider-val">12</span></label>
+                <div class="slider-group">
+                    <input type="range" id="policy-min-len" min="6" max="24" value="12" oninput="document.getElementById('val-min-len').innerText=this.value; updatePolicy()">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Gereksinimler / Policy Requirements</label>
+                <div class="checkbox-grid">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="policy-upper" checked onchange="updatePolicy()">
+                        Büyük Harf
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="policy-lower" checked onchange="updatePolicy()">
+                        Küçük Harf
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="policy-digits" checked onchange="updatePolicy()">
+                        Rakam
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="policy-special" checked onchange="updatePolicy()">
+                        Özel Karakter
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="policy-blacklist">Özel Sözlük Engeli (Virgülle ayırın) / Blacklist</label>
+                <textarea id="policy-blacklist" class="blacklist-textarea" oninput="updatePolicy()">istinye, bgt006, cyber, security, keyvan, arasteh</textarea>
+            </div>
+        </div>
+
+        <!-- Sağ Terminal Ekranı -->
+        <div class="terminal-container">
+            <div class="terminal-header">
+                <div class="terminal-buttons">
+                    <span class="terminal-btn red"></span>
+                    <span class="terminal-btn yellow"></span>
+                    <span class="terminal-btn green"></span>
+                </div>
+                <div class="terminal-title">cli.py (Interactive Simulator)</div>
+                <div class="terminal-actions" onclick="clearTerminal()"><i class="fa-solid fa-trash-can"></i> Temizle</div>
+            </div>
+            <div class="terminal-body" id="terminal-screen">
+                <div class="prompt" id="command-ran">python src/main.py</div>
+                <div id="output-area">
+                    <!-- Dinamik CLI çıktı buraya yazılacak -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>İstinye Üniversitesi • Siber Güvenlik Analiz Laboratuvarı © 2026. Geliştiren: <strong>Rauf Fatih Kaya</strong> | Danışman: <a href="https://github.com/keyvanarasteh" target="_blank">Keyvan Arasteh</a></p>
+    </footer>
+
+    <script>
+        // Default Wordlist for Passphrase
+        const wordlist = [
+            "apple", "banana", "cherry", "danger", "eagle", "forest", "garden", "harbor", "island",
+            "jacket", "kitten", "lemon", "monkey", "nature", "ocean", "pencil", "quartz", "rabbit",
+            "shadow", "tiger", "umbrella", "valley", "window", "yellow", "zebra", "active", "bright",
+            "clever", "direct", "exotic", "flying", "gentle", "honest", "island", "jolly", "kindly",
+            "lovely", "modern", "narrow", "oxygen", "polite", "quietly", "robust", "silent", "tender",
+            "unique", "vibrant", "warmth", "youth", "zealous", "anchor", "beacon", "candle", "dune",
+            "echo", "feather", "glimmer", "haven", "ivory", "journal", "kettle", "lantern", "meadow",
+            "nomad", "oasis", "pebble", "quiver", "ripple", "summit", "timber", "urn", "velvet",
+            "whisper", "yarn", "zenith", "brave", "chill", "dawn", "earth", "flame", "grace",
+            "heart", "iron", "jade", "knight", "lunar", "mist", "night", "opal", "pearl",
+            "quest", "river", "stone", "tower", "unity", "vocal", "wave", "amber", "bronze", "clay"
+        ];
+
+        let activeTab = 'tab-analyze';
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            const selectedBtn = document.querySelector(`.tab-btn[onclick="switchTab('${tabId}')"]`);
+            if (selectedBtn) selectedBtn.classList.add('active');
+            
+            const selectedContent = document.getElementById(tabId);
+            if (selectedContent) selectedContent.classList.add('active');
+            
+            activeTab = tabId;
+            
+            if (tabId === 'tab-analyze') {
+                triggerAnalysis();
+            } else if (tabId === 'tab-generate') {
+                triggerGeneration();
+            } else if (tabId === 'tab-passphrase') {
+                triggerPassphrase();
+            }
+        }
+
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            const eye = document.getElementById(`${inputId}-eye`);
+            if (input.type === "password") {
+                input.type = "text";
+                eye.className = "fa-solid fa-eye-slash";
+            } else {
+                input.type = "password";
+                eye.className = "fa-solid fa-eye";
+            }
+        }
+
+        function clearTerminal() {
+            document.getElementById('output-area').innerHTML = '<div class="text-muted">Analiz başlatmak için şifre girin veya şifre üretin...</div>';
+        }
+
+        // SHA-1 implementation in JS (Native browser crypto API)
+        async function sha1(str) {
+            const buffer = new TextEncoder().encode(str);
+            const hashBuffer = await window.crypto.subtle.digest("SHA-1", buffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+            return hashHex.toUpperCase();
+        }
+
+        // Check HIBP API securely (k-Anonymity)
+        async function checkBreach(password) {
+            if (!password) return { status: 'clean', count: 0 };
+            try {
+                const fullHash = await sha1(password);
+                const prefix = fullHash.substring(0, 5);
+                const suffix = fullHash.substring(5);
+                
+                const response = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+                if (response.status === 404) {
+                    return { status: 'clean', count: 0 };
+                }
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                const text = await response.text();
+                const lines = text.split('\n');
+                for (let line of lines) {
+                    const [resSuffix, countStr] = line.trim().split(':');
+                    if (resSuffix.toUpperCase() === suffix) {
+                        return { status: 'breached', count: parseInt(countStr, 10) };
+                    }
+                }
+                return { status: 'clean', count: 0 };
+            } catch (err) {
+                console.error("HIBP Check failed:", err);
+                return { status: 'offline', count: 0, message: err.message };
+            }
+        }
+
+        // Policy values retrieval
+        function getPolicies() {
+            const blacklistStr = document.getElementById('policy-blacklist').value;
+            const blacklist = blacklistStr.split(',')
+                .map(word => word.trim().toLowerCase())
+                .filter(word => word.length > 0);
+
+            return {
+                minLength: parseInt(document.getElementById('policy-min-len').value, 10),
+                requireUpper: document.getElementById('policy-upper').checked,
+                requireLower: document.getElementById('policy-lower').checked,
+                requireDigits: document.getElementById('policy-digits').checked,
+                requireSpecial: document.getElementById('policy-special').checked,
+                blacklist: blacklist
+            };
+        }
+
+        function checkPolicy(password, policy) {
+            const rules = {};
+            const lenOk = password.length >= policy.minLength;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasDigit = /[0-9]/.test(password);
+            const hasSpecial = /[!@#$%^&*()_+\-=\[\]{}|;:,.<>?\/\\'`~]/.test(password);
+            
+            const blacklistedFound = [];
+            const pwdLower = password.toLowerCase();
+            for (let word of policy.blacklist) {
+                if (pwdLower.includes(word)) {
+                    blacklistedFound.push(word);
+                }
+            }
+            const blacklistOk = blacklistedFound.length === 0;
+
+            rules["length"] = {
+                description: `Minimum length / Minimum uzunluk (${policy.minLength})`,
+                passed: lenOk,
+                value: `${password.length} chars`
+            };
+
+            if (policy.requireUpper) {
+                rules["uppercase"] = {
+                    description: "Uppercase letters / Büyük harf",
+                    passed: hasUpper,
+                    value: hasUpper ? "Yes" : "No"
+                };
+            }
+            if (policy.requireLower) {
+                rules["lowercase"] = {
+                    description: "Lowercase letters / Küçük harf",
+                    passed: hasLower,
+                    value: hasLower ? "Yes" : "No"
+                };
+            }
+            if (policy.requireDigits) {
+                rules["numbers"] = {
+                    description: "Numeric digits / Rakam",
+                    passed: hasDigit,
+                    value: hasDigit ? "Yes" : "No"
+                };
+            }
+            if (policy.requireSpecial) {
+                rules["special"] = {
+                    description: "Special characters / Özel karakter",
+                    passed: hasSpecial,
+                    value: hasSpecial ? "Yes" : "No"
+                };
+            }
+            
+            rules["blacklist"] = {
+                description: "Custom dictionary check / Özel sözlük engeli",
+                passed: blacklistOk,
+                value: blacklistOk ? "Passed" : `Failed (Matched: ${blacklistedFound.join(', ')})`
+            };
+
+            const isCompliant = Object.values(rules).every(r => r.passed);
+
+            return {
+                isCompliant,
+                rules,
+                blacklistedFound
+            };
+        }
+
+        // Estimate Crack Times
+        function getStrengthAndCrackTimes(password) {
+            // zxcvbn evaluation
+            const res = zxcvbn(password);
+            const score = res.score;
+            
+            const scoreLabels = {
+                0: "Too Weak / Çok Zayıf",
+                1: "Weak / Zayıf",
+                2: "Fair / Orta",
+                3: "Strong / Güçlü",
+                4: "Very Strong / Çok Güçlü"
+            };
+
+            const scoreColors = {
+                0: "text-red",
+                1: "text-red",
+                2: "text-yellow",
+                3: "text-green",
+                4: "text-green"
+            };
+
+            // Custom translations for suggestions
+            const translations = {
+                "straight rows of keys on a keyboard are easy to guess": "Klavye üzerindeki düz tuş sıralarının tahmin edilmesi kolaydır.",
+                "short keyboard patterns are easy to guess": "Kısa klavye desenlerinin tahmin edilmesi kolaydır.",
+                "repeats like \"aaa\" are easy to guess": "Tekrarlayan karakterlerin ('aaa' gibi) tahmin edilmesi kolaydır.",
+                "repeats like \"abcabcabc\" are only slightly harder to guess than \"abc\"": "Ardışık tekrarların ('abcabcabc' gibi) tahmin edilmesi kolaydır.",
+                "sequences like \"abc\" or \"6543\" are easy to guess": "Sıralı dizilerin ('abc' veya '6543' gibi) tahmin edilmesi kolaydır.",
+                "recent years are easy to guess": "Yakın yılların tahmin edilmesi kolaydır.",
+                "dates are easy to guess": "Tarihlerin tahmin edilmesi kolaydır.",
+                "this is a top-10 common password": "Bu en sık kullanılan ilk 10 şifreden biridir.",
+                "this is a top-100 common password": "Bu en sık kullanılan ilk 100 şifreden biridir.",
+                "this is a very common password": "Bu çok yaygın kullanılan bir şifredir.",
+                "this is similar to a commonly used password": "Bu, yaygın kullanılan şifrelere çok benzer.",
+                "a word by itself is easy to guess": "Tek başına bir kelimenin tahmin edilmesi kolaydır.",
+                "names and surnames by themselves are easy to guess": "Tek başına isim ve soyisimlerin tahmin edilmesi kolaydır.",
+                "common names and surnames are easy to guess": "Yaygın isim ve soyisimlerin tahmin edilmesi kolaydır.",
+                "add another word or two. uncommon words are better": "Bir veya iki kelime daha ekleyin. Yaygın olmayan kelimeler daha iyidir.",
+                "add another word or two": "Bir veya iki kelime daha ekleyin.",
+                "uncommon words are better": "Yaygın olmayan kelimeler daha iyidir.",
+                "use a longer keyboard pattern with more turns": "Daha fazla dönüş içeren daha uzun bir klavye deseni kullanın.",
+                "avoid repeated words and characters": "Tekrarlayan kelimelerden ve karakterlerden kaçının.",
+                "avoid sequences": "Sıralı dizilerden kaçının.",
+                "avoid recent years": "Yakın yılları kullanmaktan kaçının.",
+                "avoid dates and years that are associated with you": "Sizinle ilişkili olabilecek tarih ve yılları kullanmaktan kaçının.",
+                "capitalization doesn't help very much": "Yalnızca baş harfi büyütmek güvenliği çok fazla artırmaz.",
+                "all-uppercase is almost as easy to guess as all-lowercase": "Tamamı büyük harf olan kelimelerin tahmin edilmesi, tamamı küçük harf olanlar kadar kolaydır.",
+                "predictable substitutions like '@' instead of 'a' don't help very much": "Harf yerine benzer karakter kullanmak ('a' yerine '@' gibi) güvenliği çok fazla artırmaz."
+            };
+
+            const translate = (text) => translations[text.trim().replace(/\.$/, '').toLowerCase()] || text;
+
+            const suggestions = (res.feedback.suggestions || []).map(translate);
+            const warning = res.feedback.warning ? translate(res.feedback.warning) : "";
+
+            return {
+                score,
+                label: scoreLabels[score],
+                colorClass: scoreColors[score],
+                warning,
+                suggestions,
+                guesses: res.guesses,
+                online_throttled: res.crack_times_display.online_no_throttling_10_per_second,
+                offline_fast: res.crack_times_display.offline_fast_hashing_1e10_per_second
+            };
+        }
+
+        // Render CLI simulator output
+        async function renderAnalysis(password) {
+            const outputArea = document.getElementById('output-area');
+            if (!password) {
+                clearTerminal();
+                return;
+            }
+
+            // Show loading status inside terminal mimicking the console.status spinner
+            outputArea.innerHTML = `
+                <div class="text-yellow">Sızıntı kontrolü yapılıyor (HIBP API)... / Checking breaches...</div>
+            `;
+
+            const policy = getPolicies();
+            const policyResult = checkPolicy(password, policy);
+            const strength = getStrengthAndCrackTimes(password);
+            const breach = await checkBreach(password);
+
+            let score_bar = "█".repeat(strength.score + 1) + "░".repeat(4 - strength.score);
+
+            // Construct Rich Panel look in HTML
+            let html = `
+┌───────────────────────────────────────────────────────────────┐
+│ İSTİNYE ÜNİVERSİTESİ • Siber Güvenlik Bölümü                  │
+│ BGT006 Sızma Testi Dersi Bahar 2025-2026 Final Projesi        │
+│ PAROLA GÜVENLİK ANALİZÖRÜ & ÜRETİCİSİ                         │
+│ ───────────────────────────────────────────────────────────── │
+│ Danışman: Keyvan Arasteh (@keyvanarasteh) | qline.tech        │
+└───────────────────────────────────────────────────────────────┘
+
+<span class="text-green">📊 ANALİZ SONUÇLARI / ANALYSIS RESULTS</span>
+
+<div class="cli-panel ${strength.score >= 3 ? 'green' : (strength.score === 2 ? 'yellow' : 'red')}">
+<strong>Parola Gücü / Password Strength</strong>
+─────────────────────────────────────────────────────────────
+Güç Seviyesi / Strength Score: <span class="${strength.colorClass}">${strength.label} (${strength.score}/4)</span>
+Görsel Seviye / Progress Bar:  <span class="${strength.colorClass}">${score_bar}</span>
+Tahmin Hızı / Guesses Complexity: <span class="text-white">${strength.guesses.toLocaleString()}</span>
+</div>
+
+<strong>Politika Uyumluluk Tablosu / Policy Compliance Table</strong>
+<table class="cli-table">
+    <thead>
+        <tr>
+            <th>Kriter / Criteria</th>
+            <th style="text-align: center;">Durum / Status</th>
+            <th>Değer / Actual Value</th>
+        </tr>
+    </thead>
+    <tbody>
+`;
+
+            for (let key in policyResult.rules) {
+                let rule = policyResult.rules[key];
+                let statusSpan = rule.passed ? `<span class="text-green">✓ GEÇTİ</span>` : `<span class="text-red">✗ KALDI</span>`;
+                html += `
+        <tr>
+            <td>${rule.description}</td>
+            <td style="text-align: center;">${statusSpan}</td>
+            <td>${rule.value}</td>
+        </tr>
+`;
+            }
+
+            let overallStatus = policyResult.isCompliant ? `<span class="text-green">✓ UYUMLU / COMPLIANT</span>` : `<span class="text-red">✗ UYUMSUZ / NON-COMPLIANT</span>`;
+            html += `
+        <tr>
+            <td class="text-white"><strong>Genel Uyum / Overall Compliance</strong></td>
+            <td style="text-align: center;">${overallStatus}</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+
+<strong>Tahmini Kırma Süreleri / Estimated Crack Times</strong>
+<table class="cli-table">
+    <thead>
+        <tr>
+            <th>Saldırı Türü / Attack Type</th>
+            <th>Tahmini Süre / Estimated Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Çevrimiçi Limitli (10/sn) / Online Throttled</td>
+            <td class="text-yellow">${strength.online_throttled}</td>
+        </tr>
+        <tr>
+            <td>Çevrimdışı Hızlı (1e10/sn) / Offline Fast Hash</td>
+            <td class="text-yellow">${strength.offline_fast}</td>
+        </tr>
+    </tbody>
+</table>
+`;
+
+            // Have I Been Pwned panel render
+            let breachPanelClass = "green";
+            let breachContent = "";
+            if (breach.status === "breached") {
+                breachPanelClass = "red";
+                breachContent = `
+<span class="text-red">⚠️ TEHLİKE / DANGER</span><br><br>
+Bu parola daha önce <span class="text-red"><strong>${breach.count.toLocaleString()}</strong></span> kez sızıntılarda görülmüş!<br>
+NIST kurallarına göre bu şifreyi <span class="text-red"><strong>KULLANMAYIN</strong></span>.
+`;
+            } else if (breach.status === "clean") {
+                breachPanelClass = "green";
+                breachContent = `
+<span class="text-green">✓ GÜVENLİ / SAFE</span><br><br>
+Parola bilinen hiçbir veri sızıntısında tespit edilmedi.<br>
+Have I Been Pwned veritabanında kaydı yok.
+`;
+            } else {
+                breachPanelClass = "yellow";
+                breachContent = `
+<span class="text-yellow">⚠️ BAĞLANTI HATASI / CONNECTION ERROR</span><br><br>
+Veri sızıntısı sorgulaması yapılamadı: ${breach.message || 'Hata oluştu'}.
+`;
+            }
+
+            html += `
+<div class="cli-panel ${breachPanelClass}">
+<strong>Veri İhlali Durumu / Breach Status</strong>
+─────────────────────────────────────────────────────────────
+${breachContent}
+</div>
+`;
+
+            // Suggestions
+            const hasSuggestions = strength.suggestions.length > 0 || strength.warning || !policyResult.isCompliant || breach.status === "breached";
+            if (hasSuggestions) {
+                html += `
+<span class="text-yellow">💡 İyileştirme Önerileri / Security Suggestions:</span>
+`;
+                if (strength.warning) {
+                    html += `  • <span class="text-red"><strong>Uyarı:</strong> ${strength.warning}</span>\n`;
+                }
+                for (let sug of strength.suggestions) {
+                    html += `  • ${sug}\n`;
+                }
+                if (!policyResult.isCompliant) {
+                    html += `  • Parola politikası kriterlerini karşılayacak şekilde karakter ekleyin.\n`;
+                }
+                if (breach.status === "breached") {
+                    html += `  • Parolanız sızdırıldığı için derhal değiştirin ve benzersiz bir parola seçin.\n`;
+                }
+            }
+
+            html += `\n════════════════════════════════════════════════════════════\n`;
+
+            outputArea.innerHTML = html;
+        }
+
+        // Actions trigger
+        let analysisTimeout;
+        function triggerAnalysis() {
+            const pwd = document.getElementById('input-pwd').value;
+            document.getElementById('command-ran').innerHTML = `python src/main.py -p "********"`;
+            clearTimeout(analysisTimeout);
+            analysisTimeout = setTimeout(() => {
+                renderAnalysis(pwd);
+            }, 300);
+        }
+
+        // Generator logic
+        function triggerGeneration() {
+            const length = parseInt(document.getElementById('gen-length').value, 10);
+            const useUpper = document.getElementById('gen-upper').checked;
+            const useLower = document.getElementById('gen-lower').checked;
+            const useDigits = document.getElementById('gen-digits').checked;
+            const useSpecial = document.getElementById('gen-special').checked;
+            const excludeSim = document.getElementById('gen-exclude').checked;
+
+            let upperPool = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let lowerPool = "abcdefghijklmnopqrstuvwxyz";
+            let digitsPool = "0123456789";
+            let specialPool = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+            if (excludeSim) {
+                const similar = "l1Io0O|`~'\"";
+                const filterPool = (p) => p.split('').filter(c => !similar.includes(c)).join('');
+                upperPool = filterPool(upperPool);
+                lowerPool = filterPool(lowerPool);
+                digitsPool = filterPool(digitsPool);
+                specialPool = filterPool(specialPool);
+            }
+
+            let pool = "";
+            let generated = [];
+
+            if (useUpper && upperPool) { pool += upperPool; generated.push(upperPool[Math.floor(Math.random() * upperPool.length)]); }
+            if (useLower && lowerPool) { pool += lowerPool; generated.push(lowerPool[Math.floor(Math.random() * lowerPool.length)]); }
+            if (useDigits && digitsPool) { pool += digitsPool; generated.push(digitsPool[Math.floor(Math.random() * digitsPool.length)]); }
+            if (useSpecial && specialPool) { pool += specialPool; generated.push(specialPool[Math.floor(Math.random() * specialPool.length)]); }
+
+            if (!pool) {
+                pool = lowerPool;
+                generated.push(lowerPool[Math.floor(Math.random() * lowerPool.length)]);
+            }
+
+            while (generated.length < length) {
+                generated.push(pool[Math.floor(Math.random() * pool.length)]);
+            }
+
+            // Shuffle array
+            for (let i = generated.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [generated[i], generated[j]] = [generated[j], generated[i]];
+            }
+
+            const password = generated.join('');
+            
+            document.getElementById('command-ran').innerHTML = `python src/main.py -g -l ${length}`;
+            renderAnalysis(password);
+        }
+
+        // Passphrase logic
+        function triggerPassphrase() {
+            const wordCount = parseInt(document.getElementById('pass-words').value, 10);
+            const sep = document.getElementById('pass-sep').value || '-';
+
+            const selected = [];
+            for (let i = 0; i < wordCount; i++) {
+                selected.push(wordlist[Math.floor(Math.random() * wordlist.length)]);
+            }
+            const passphrase = selected.join(sep);
+
+            document.getElementById('command-ran').innerHTML = `python src/main.py (interactive passphrase generated)`;
+            renderAnalysis(passphrase);
+        }
+
+        function updatePolicy() {
+            if (activeTab === 'tab-analyze') {
+                triggerAnalysis();
+            } else if (activeTab === 'tab-generate') {
+                triggerGeneration();
+            } else if (activeTab === 'tab-passphrase') {
+                triggerPassphrase();
+            }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            clearTerminal();
+        });
+    </script>
+</body>
+</html>

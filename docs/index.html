@@ -558,7 +558,6 @@
                     </div>
                 </div>
             </div>
-
             <!-- SEKME 2: PAROLA ÜRET -->
             <div id="tab-generate" class="tab-content">
                 <div class="form-group">
@@ -600,6 +599,16 @@
                 <button class="btn-primary" onclick="triggerGeneration()">
                     <i class="fa-solid fa-rotate"></i> Şifre Üret ve Analiz Et
                 </button>
+
+                <div class="form-group" style="margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
+                    <label>Üretilen Parola / Generated Password</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="gen-output" readonly placeholder="Şifre üretilmedi..." onclick="this.select()">
+                        <button class="toggle-visibility" onclick="copyToClipboard('gen-output')" title="Kopyala">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <!-- SEKME 3: PAROLA GRUBU (PASSPHRASE) -->
@@ -621,9 +630,17 @@
                 <button class="btn-primary" onclick="triggerPassphrase()">
                     <i class="fa-solid fa-shuffle"></i> Üret ve Analiz Et
                 </button>
-            </div>
 
-            <!-- GENEL POLİTİKA AYARLARI -->
+                <div class="form-group" style="margin-top: 1rem; border-top: 1px dashed var(--border-color); padding-top: 1rem;">
+                    <label>Üretilen Parola Grubu / Generated Passphrase</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="pass-output" readonly placeholder="Parola grubu üretilmedi..." onclick="this.select()">
+                        <button class="toggle-visibility" onclick="copyToClipboard('pass-output')" title="Kopyala">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>            <!-- GENEL POLİTİKA AYARLARI -->
             <div class="card-title" style="margin-top: 1rem; font-size: 0.95rem;">
                 <i class="fa-solid fa-shield-halved text-cyan"></i> Politika Ayarları / Policy Rules
             </div>
@@ -954,6 +971,21 @@
 
             let score_bar = "█".repeat(strength.score + 1) + "░".repeat(4 - strength.score);
 
+            // Construct Generated output header if generated
+            let generatedOutputHtml = "";
+            if (activeTab === 'tab-generate' || activeTab === 'tab-passphrase') {
+                const titleText = activeTab === 'tab-generate' 
+                    ? "✓ Güvenli Parola Üretildi / Secure Password Generated:"
+                    : "✓ Parola Grubu Üretildi / Passphrase Generated:";
+                
+                generatedOutputHtml = `
+<span class="text-green">${titleText}</span>
+<div class="cli-panel" style="border-color: rgba(255, 255, 255, 0.4); background: rgba(255, 255, 255, 0.05); margin: 0.5rem 0 1rem 0; padding: 0.75rem; text-align: center;">
+    <span class="text-yellow" style="font-size: 1.1rem; font-weight: bold; user-select: all;">${password}</span>
+</div>
+`;
+            }
+
             // Construct Rich Panel look in HTML
             let html = `
 ┌───────────────────────────────────────────────────────────────┐
@@ -963,7 +995,7 @@
 │ ───────────────────────────────────────────────────────────── │
 │ Danışman: Keyvan Arasteh (@keyvanarasteh) | qline.tech        │
 └───────────────────────────────────────────────────────────────┘
-
+${generatedOutputHtml}
 <span class="text-green">📊 ANALİZ SONUÇLARI / ANALYSIS RESULTS</span>
 
 <div class="cli-panel ${strength.score >= 3 ? 'green' : (strength.score === 2 ? 'yellow' : 'red')}">
@@ -1146,6 +1178,9 @@ ${breachContent}
 
             const password = generated.join('');
             
+            // Populate output display
+            document.getElementById('gen-output').value = password;
+            
             document.getElementById('command-ran').innerHTML = `python src/main.py -g -l ${length}`;
             renderAnalysis(password);
         }
@@ -1161,8 +1196,33 @@ ${breachContent}
             }
             const passphrase = selected.join(sep);
 
+            // Populate output display
+            document.getElementById('pass-output').value = passphrase;
+
             document.getElementById('command-ran').innerHTML = `python src/main.py (interactive passphrase generated)`;
             renderAnalysis(passphrase);
+        }
+
+        // Copy Helper
+        function copyToClipboard(inputId) {
+            const input = document.getElementById(inputId);
+            if (!input || !input.value) return;
+            
+            input.select();
+            input.setSelectionRange(0, 99999); // Mobile
+            
+            navigator.clipboard.writeText(input.value).then(() => {
+                const btn = input.nextElementSibling;
+                const icon = btn.querySelector('i');
+                const originalClass = icon.className;
+                
+                icon.className = "fa-solid fa-check text-green";
+                setTimeout(() => {
+                    icon.className = originalClass;
+                }, 1500);
+            }).catch(err => {
+                console.error("Clipboard copy failed:", err);
+            });
         }
 
         function updatePolicy() {
